@@ -111,6 +111,34 @@ address {
     white-space: pre;
 }
 
+label {
+	font-weight: normal;
+}
+span.input-icon, span.input-help {
+	display: block;
+	position: relative;
+}
+.input-icon > input {
+	padding-left: 25px;
+	padding-right: 6px;
+}
+.input-icon.input-icon-right > input {
+	padding-left: 6px;
+	padding-right: 25px;
+}
+span.input-help > input {
+	padding-left: 30px;
+	padding-right: 6px;
+}
+.input-icon > [class*="fa-"], .input-icon > [class*="clip-"] {
+	color: #909090;
+	display: inline-block;
+	left: 5px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+}
+
 ol,
 ul,
 dl {
