@@ -136,5 +136,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-!/hiring/db.sqlite3
-!/hiring/home/migrations/
+/hiring/db.sqlite3
+/hiring/home/migrations/
