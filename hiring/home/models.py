@@ -15,6 +15,7 @@ class Challenge(models.Model):
     is_published = models.BooleanField(default=False)
     is_timed = models.BooleanField(default=True)
     max_score = models.FloatField()
+    number_of_attempts = models.IntegerField(default=-1)
     time_out = models.DurationField(default=timedelta(minutes=10))
     challenge_api_url = models.CharField(max_length=255, default="")
 
