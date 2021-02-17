@@ -16,6 +16,8 @@
         <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+        {% block css %}
+        {% endblock %}
     </head>
     <body id="page-top">
         <div id="app">
@@ -77,5 +79,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous"></script>
         <!-- Vue.js main app-->
         <script src="{% static 'js/main.js' %}"></script>
+        {% block js %}
+        {% endblock %}
     </body>
 </html>
