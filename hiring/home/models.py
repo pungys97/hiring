@@ -7,9 +7,10 @@ from django.db import models
 class Challenge(models.Model):
     name = models.CharField(max_length=50, blank=False)
     description = models.TextField(blank=True)
-    solver_script_path = models.CharField(verbose_name='solver', max_length=255, default="")
-    modal_template_path = models.CharField(verbose_name='modal', max_length=255, default="")
-    image_src_path = models.CharField(verbose_name='image', max_length=255, default="")
+    solver_script_path = models.CharField(max_length=255, default="")
+    assignment_modal_template_path = models.CharField(max_length=255, default="")
+    solution_form_template_path = models.CharField(max_length=255, default="")
+    image_src_path = models.CharField(max_length=255, default="")
     created_date_time = models.DateTimeField(auto_now_add=True, auto_created=True, editable=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     is_published = models.BooleanField(default=False)
