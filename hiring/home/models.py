@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 
 
 class Challenge(models.Model):
@@ -18,10 +19,13 @@ class Challenge(models.Model):
     max_score = models.FloatField()
     number_of_attempts = models.IntegerField(default=-1)
     time_out = models.DurationField(default=timedelta(minutes=10))
-    challenge_api_url = models.CharField(max_length=255, default="")
+    slug = models.SlugField()
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('challenge_detail', kwargs={'slug': self.slug})  # new
 
 
 class ChallengeAttempt(models.Model):

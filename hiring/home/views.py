@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 
 from .models import Challenge
 
@@ -13,10 +12,6 @@ class HomeView(TemplateView):
         return context
 
 
-# CHALLENGES
-class LogCabinView(TemplateView):
-    template_name = 'home.html'
-
-    def get(self, request, *args, **kwargs):
-        challenges = Challenge.objects.filter(is_published=True).order_by('created_date_time')
-        return render(request, template_name='home.html', context={"challenges": challenges})
+class ChallengeView(DetailView):
+    template_name = 'solutions/base_solution_template.html'
+    model = Challenge
