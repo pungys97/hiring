@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView, DetailView
+from django.views.generic.edit import FormMixin
 
+from .forms import ChallengeForm
 from .models import Challenge
 
 
@@ -12,6 +14,7 @@ class HomeView(TemplateView):
         return context
 
 
-class ChallengeView(DetailView):
+class ChallengeView(FormMixin, DetailView):
     template_name = 'solutions/base_solution_template.html'
     model = Challenge
+    form_class = ChallengeForm
