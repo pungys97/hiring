@@ -20,6 +20,7 @@ class Challenge(models.Model):
     number_of_attempts = models.IntegerField(default=-1)
     time_out = models.DurationField(default=timedelta(minutes=10))
     slug = models.SlugField()
+    generator_script_path = models.CharField(max_length=255, default="")
 
     def __str__(self):
         return self.name
