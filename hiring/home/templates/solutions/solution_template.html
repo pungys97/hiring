@@ -31,6 +31,16 @@
 </div>
 {% endif %}
 {% endblock %}
+
+{% block content %}
+<form action="{% url 'challenge_detail' object.slug %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
+
+
 {% block js %}
 {% if object.is_timed %}
 {{ object.time_limit_in_minutes |json_script:"time-limit-in-minutes" }}

@@ -40,6 +40,6 @@ function initializeClock(id, endtime) {
 
 const timelimit = document.getElementById('time-limit-in-minutes')
 if (timelimit) {
-    const deadline = new Date(Date.parse(new Date()) + JSON.parse(timelimit.textContent) * 60 * 60 * 1000);
+    const deadline = new Date(Date.parse(new Date()) + JSON.parse(timelimit.textContent) * 60 * 1000);
     initializeClock('clockdiv', deadline);
 }
