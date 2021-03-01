@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
 {{ object.name }}
@@ -8,4 +9,31 @@
 {% endblock %}
 
 {% block masthead %}
+{% if object.is_timed %}
+<div class="masthead masthead-small bg-primary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
+        <h1 class="masthead-subheading">Time remaining</h1>
+        <div id="clockdiv">
+            <div>
+                <span class="hours"></span>
+                <div class="smalltext">Hours</div>
+            </div>
+            <div>
+                <span class="minutes"></span>
+                <div class="smalltext">Minutes</div>
+            </div>
+            <div>
+                <span class="seconds"></span>
+                <div class="smalltext">Seconds</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block js %}
+{% if object.is_timed %}
+{{ object.time_limit_in_minutes |json_script:"time-limit-in-minutes" }}
+{% endif %}
+<script src="{% static 'js/challenge.js' %}"></script>
 {% endblock %}

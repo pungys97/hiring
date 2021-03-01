@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
@@ -18,7 +16,7 @@ class Challenge(models.Model):
     is_timed = models.BooleanField(default=True)
     max_score = models.FloatField()
     number_of_attempts = models.IntegerField(default=-1)
-    time_out = models.DurationField(default=timedelta(minutes=10))
+    time_limit_in_minutes = models.IntegerField(default=10)
     slug = models.SlugField()
     generator_script_path = models.CharField(max_length=255, default="")
 
