@@ -1,4 +1,3 @@
-from django.http import HttpResponseForbidden
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, DetailView
@@ -24,7 +23,7 @@ class ChallengeDisplayView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = ChallengeForm()
+        context['form'] = ChallengeForm(inputs={"test": "value", "test2": "value"})
         return context
 
 
@@ -33,11 +32,18 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
     form_class = ChallengeForm
     model = Challenge
 
-    def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden()
-        self.object = self.get_object()
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     # if not request.user.is_authenticated:
+    #     #     return HttpResponseForbidden()
+    #     self.object = self.get_object()
+    #     self.form = self.get_form()
+    #     print(self.form)
+    #     return super().post(request, *args, **kwargs)
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        print(form.cleaned_data.get('solution', None))
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('home')

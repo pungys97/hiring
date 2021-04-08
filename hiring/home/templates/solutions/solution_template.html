@@ -35,6 +35,13 @@
 {% block content %}
 <form action="{% url 'challenge_detail' object.slug %}" method="POST">
     {% csrf_token %}
+    {# Include the hidden fields #}
+    {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+    {% for input in form.fields.challenge_input.value %}
+    {{ input }}
+    {% endfor %}
     {{ form.as_p }}
     <input type="submit" value="Submit">
 </form>
