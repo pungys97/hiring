@@ -14,7 +14,7 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['challenges'] = Challenge.objects.filter(is_published=True).order_by('created_date_time')[:6]
+        context['challenges'] = Challenge.objects.filter(is_published=True).order_by('created_date_time')[:6]  #TODO: pagination for challenges
         return context
 
 
@@ -45,18 +45,15 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
         #     return HttpResponseForbidden()
         self.object = self.get_object()
         self.form = self.get_form()
+        print(request.body)
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
         from .solvers.log_cabin_solver import Solver
-        with open(r'C:\Users\pungar\PycharmProjects\Hiring\src\hiring\home\dummy.txt', 'w') as file:
-            print(form.cleaned_data.get('solution', None), file=file)
-        #     print(Solver(11, 10).build().strip(), file=file)
-        #     print('done')
-        print(Solver(11, 10) == form.cleaned_data.get('solution'))
-        print(form.cleaned_data.get('solution', None))
+        print(self.form.cleaned_data)
+        Solver(11, 10).solve(form.cleaned_data)
         return super().form_valid(form)
 
     def get_success_url(self):
