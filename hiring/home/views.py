@@ -4,6 +4,7 @@ from django.views.generic import TemplateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
 
+from .fields import Field
 from .forms import ChallengeForm
 from .models import Challenge
 
@@ -23,7 +24,14 @@ class ChallengeDisplayView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = ChallengeForm(inputs={"test": "value", "test2": "value"})
+        context['form'] = ChallengeForm(
+            fields=
+            (
+                Field(name='x', value='7', field_type=Field.INPUT),
+                Field(name='y', value='8', field_type=Field.INPUT),
+                Field(name='solution', field_type=Field.SOLUTION),
+            )
+        )
         return context
 
 
@@ -32,16 +40,22 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
     form_class = ChallengeForm
     model = Challenge
 
-    # def post(self, request, *args, **kwargs):
-    #     # if not request.user.is_authenticated:
-    #     #     return HttpResponseForbidden()
-    #     self.object = self.get_object()
-    #     self.form = self.get_form()
-    #     print(self.form)
-    #     return super().post(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        # if not request.user.is_authenticated:
+        #     return HttpResponseForbidden()
+        self.object = self.get_object()
+        self.form = self.get_form()
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
+        from .solvers.log_cabin_solver import Solver
+        with open(r'C:\Users\pungar\PycharmProjects\Hiring\src\hiring\home\dummy.txt', 'w') as file:
+            print(form.cleaned_data.get('solution', None), file=file)
+        #     print(Solver(11, 10).build().strip(), file=file)
+        #     print('done')
+        print(Solver(11, 10) == form.cleaned_data.get('solution'))
         print(form.cleaned_data.get('solution', None))
         return super().form_valid(form)
 

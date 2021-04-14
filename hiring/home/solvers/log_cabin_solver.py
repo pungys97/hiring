@@ -1,7 +1,7 @@
 import math
 
 
-class Cabin:
+class Solver:
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -50,3 +50,6 @@ class Cabin:
 
     def build(self):
         return self._build_roof() + self._build_base()
+
+    def __eq__(self, string):
+        return self.build() == string
