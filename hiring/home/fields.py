@@ -22,9 +22,9 @@ class Field:
             field = forms.CharField(
                 required=True,
                 initial=self.value,
-                disabled=True
+                # disabled=True
             )
-            field.widget.attrs.update({'class': 'form-control'})
+            field.widget.attrs.update({'class': 'form-control', 'readonly': True})
         else:
             field = forms.CharField(
                 widget=forms.Textarea(

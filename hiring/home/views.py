@@ -1,3 +1,5 @@
+import importlib
+
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, DetailView
@@ -7,6 +9,9 @@ from django.views.generic.edit import FormView
 from .fields import Field
 from .forms import ChallengeForm
 from .models import Challenge
+from .utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class HomeView(TemplateView):
@@ -29,6 +34,7 @@ class ChallengeDisplayView(DetailView):
             (
                 Field(name='x', value='7', field_type=Field.INPUT),
                 Field(name='y', value='8', field_type=Field.INPUT),
+                Field(name='z', value='8', field_type=Field.INPUT),
                 Field(name='solution', field_type=Field.SOLUTION),
             )
         )
@@ -36,24 +42,17 @@ class ChallengeDisplayView(DetailView):
 
 
 class ChallengeAnswerView(SingleObjectMixin, FormView):
-    template_name = 'solutions/solution_template.html'
     form_class = ChallengeForm
     model = Challenge
 
     def post(self, request, *args, **kwargs):
-        # if not request.user.is_authenticated:
-        #     return HttpResponseForbidden()
         self.object = self.get_object()
-        self.form = self.get_form()
-        print(request.body)
         return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        from .solvers.log_cabin_solver import Solver
-        print(self.form.cleaned_data)
-        Solver(11, 10).solve(form.cleaned_data)
+        solver = importlib.import_module(self.object.solver_script_path, package='home')
+        logger.debug("true")
+        res = solver.Solver(11, 10) == form.data['solution']
         return super().form_valid(form)
 
     def get_success_url(self):

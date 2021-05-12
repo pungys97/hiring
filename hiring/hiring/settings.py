@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import logging
 import os
 from pathlib import Path
 
@@ -30,6 +31,12 @@ ALLOWED_HOSTS = []
 LOGIN_REDIRECT_URL = '/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+LOG_FILE = r"debug_log.log"
+LOGGING_LEVEL = logging.DEBUG
+LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_TO_CONSOLE = True
+
 
 # Application definition
 

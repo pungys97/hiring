@@ -2,7 +2,6 @@ from django import forms
 
 
 class ChallengeForm(forms.Form):
-
     def __init__(self, *args, **kwargs):
         """
         :param kwargs:
@@ -24,7 +23,3 @@ class ChallengeForm(forms.Form):
         super().__init__(*args, **kwargs)
         for field in fields:
             self.fields[field.name] = field.widget
-
-    def clean_solution(self):
-        self.cleaned_data['solution'] = self.cleaned_data['solution']
-        print(self.cleaned_data)

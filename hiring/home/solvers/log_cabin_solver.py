@@ -12,7 +12,7 @@ class Solver:
         self.vertical_fence = "|"
         self.horizontal_fence = "="
         self.space = " "
-        self.newline = "\n"
+        self.newline = "\r\n"
         self.height_of_fence = 2
 
     def _build_roof(self):
@@ -46,10 +46,12 @@ class Solver:
                     continue
                 base += self.space
             base += self.newline
+        base = base[:-2]  # remove last \r\n
         return base
 
     def build(self):
         return self._build_roof() + self._build_base()
 
-    def __eq__(self, string):
-        return self.build() == string
+    def __eq__(self, other):
+        assert type(other) == str, "Can only be compared to string,"
+        return self.build() == other

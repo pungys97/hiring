@@ -29,7 +29,7 @@ class Challenge(models.Model):
 
 class ChallengeAttempt(models.Model):
     challenge = models.ForeignKey(Challenge, related_name='attempts', on_delete=models.CASCADE)
-    attempted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    attempted_by = models.CharField(max_length=128)
     attempted_date_time = models.DateTimeField(auto_created=True, editable=False)
     score = models.FloatField()
     duration = models.DurationField(blank=True, null=True)
