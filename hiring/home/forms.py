@@ -2,6 +2,8 @@ from django import forms
 
 
 class ChallengeForm(forms.Form):
+    timestamp = forms.CharField(widget=forms.HiddenInput())
+
     def __init__(self, *args, **kwargs):
         """
         :param kwargs:

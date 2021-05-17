@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings as s
+from django.core.signing import Signer, BadSignature
 
 
 def get_logger(name):
@@ -16,3 +17,12 @@ def get_logger(name):
         logger.addHandler(handler)
 
     return logger
+
+
+def verify_timestamp(signed_timestamp: str):
+    signer = Signer()
+    try:
+        original_timestamp = signer.unsign(signed_timestamp)
+    except BadSignature:
+        original_timestamp = None
+    return original_timestamp

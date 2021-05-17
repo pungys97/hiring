@@ -1,12 +1,25 @@
 import math
+from random import randint
+
+from .base_solver import BaseSolver
 
 
-class Solver:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        self.middle_of_the_house = math.floor(width / 2)
-        self.height_width_from_middle = math.ceil((width - 4) / 2)
+class Solver(BaseSolver):
+    required_params = ('width', 'height', )
+
+    def get_score(self, *args, **kwargs):
+        return randint(0, 100)
+
+    def solve(self, solution):
+        return (self._build_roof() + self._build_base()) == solution
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        assert all([required_param in kwargs.keys() for required_param in Solver.required_params]), "Not all required arguments were filled."
+        self.width = int(kwargs.get("width")[0])
+        self.height = int(kwargs.get("height")[0])
+        self.middle_of_the_house = math.floor(self.width / 2)
+        self.height_width_from_middle = math.ceil((self.width - 4) / 2)
         self.roof_brick = "x"
         self.wall_brick = "x"
         self.vertical_fence = "|"
@@ -46,12 +59,5 @@ class Solver:
                     continue
                 base += self.space
             base += self.newline
-        base = base[:-2]  # remove last \r\n
+        base = base[:-2]  # remove last 'newline'
         return base
-
-    def build(self):
-        return self._build_roof() + self._build_base()
-
-    def __eq__(self, other):
-        assert type(other) == str, "Can only be compared to string,"
-        return self.build() == other

@@ -1,10 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title %}
+Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-target="#usernameModal" role="button">
+    <i class="fas fa-edit"></i>
+</a>
+{% endblock %}
 {% block menu-items %}
     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#tasks">Challenges</a></li>
+    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#score">Scoreboard</a></li>
     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#about">About</a></li>
-<li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger"
-                                     href="#contact">Apply</a></li>
+    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#contact">Apply</a></li>
 {% endblock %}
 {% block masthead %}
     <header class="masthead bg-primary text-white text-center">
@@ -20,13 +25,12 @@
                 <div class="divider-custom-line"></div>
             </div>
             <!-- Masthead Subheading-->
-            <p class="masthead-subheading font-weight-light mb-0">Test your programming and software automation
-                skills</p>
+            <p class="masthead-subheading font-weight-light mb-0">Test your programming and software automation skills</p>
         </div>
     </header>
 {% endblock %}
 {% block content %}
-        <!-- Portfolio Section-->
+        <!-- Challenge Section-->
         <section class="page-section portfolio" id="tasks">
             <div class="container">
                 <!-- Portfolio Section Heading-->
@@ -49,6 +53,50 @@
                         </div>
                     </div>
                     {% endfor %}
+                </div>
+            </div>
+        </section>
+        <!-- Portfolio Section-->
+        <section class="page-section" id="score">
+            <div class="container">
+                <!-- Portfolio Section Heading-->
+                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Scores</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                <div class="row justify-content-center">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">First</th>
+                          <th scope="col">Last</th>
+                          <th scope="col">Handle</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">1</th>
+                          <td>Mark</td>
+                          <td>Otto</td>
+                          <td>@mdo</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">2</th>
+                          <td>Jacob</td>
+                          <td>Thornton</td>
+                          <td>@fat</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">3</th>
+                          <td colspan="2">Larry the Bird</td>
+                          <td>@twitter</td>
+                        </tr>
+                      </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -200,4 +248,33 @@
             </div>
         </div>
         {% endfor %}
+        <!-- Username -->
+        <div class="modal fade" id="usernameModal" tabindex="-1" role="dialog" aria-labelledby="usernameModalTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="usernameModalLongTitle">Select your Username</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">@</span>
+                      </div>
+                      <input id="username-input" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                      <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" type="button" data-dismiss="modal" onclick="setUsernameCookie();">Submit</button>
+                      </div>
+                    </div>
+              </div>
+<!--              <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="">Save</button>-->
+<!--              </div>-->
+            </div>
+          </div>
+</div>
+{% endblock %}
+{% block js %}
 {% endblock %}

@@ -8,7 +8,6 @@ class Challenge(models.Model):
     description = models.TextField(blank=True)
     solver_script_path = models.CharField(max_length=255, default="")
     assignment_modal_template_path = models.CharField(max_length=255, default="")
-    solution_form_template_path = models.CharField(max_length=255, default="")
     image_src_path = models.CharField(max_length=255, default="")
     created_date_time = models.DateTimeField(auto_now_add=True, auto_created=True, editable=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
@@ -29,11 +28,11 @@ class Challenge(models.Model):
 
 class ChallengeAttempt(models.Model):
     challenge = models.ForeignKey(Challenge, related_name='attempts', on_delete=models.CASCADE)
-    attempted_by = models.CharField(max_length=128)
-    attempted_date_time = models.DateTimeField(auto_created=True, editable=False)
+    attempted_by = models.CharField(max_length=32)
+    attempted_date_time = models.DateTimeField(editable=False)
     score = models.FloatField()
     duration = models.DurationField(blank=True, null=True)
     completed = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.challenge.name} by {self.attempted_by.name} on {self.attempted_date_time}"
+        return f"{self.challenge.name} by {self.attempted_by} on {self.attempted_date_time}"
