@@ -2,7 +2,7 @@ from django import forms
 
 
 class ChallengeForm(forms.Form):
-    timestamp = forms.CharField(widget=forms.HiddenInput())
+    signature = forms.CharField(widget=forms.HiddenInput(), label="")
 
     def __init__(self, *args, **kwargs):
         """

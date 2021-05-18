@@ -13,10 +13,9 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
 from random_username.generate import generate_username
 
-from .fields import Field
 from .forms import ChallengeForm
 from .models import Challenge, ChallengeAttempt
-from .utils import get_logger, verify_timestamp
+from .utils import get_logger, verify_signature
 
 logger = get_logger(__name__)
 
@@ -35,25 +34,31 @@ class HomeView(TemplateView):
 
     @cached_property
     def scores(self):
-        max_scores = ChallengeAttempt.objects.all().values('challenge').annotate(max_score=Max('score'))
+        published_challenges = tuple(Challenge.objects.filter(is_published=True).values_list('id', flat=True))
+        published_challenges_attempts = ChallengeAttempt.objects.filter(challenge__is_published=True)
+        max_scores = published_challenges_attempts.values('challenge').annotate(max_score=Max('score'))
         max_scores = {challenge['challenge']: challenge['max_score'] for challenge in max_scores}
-        scores = ChallengeAttempt.objects.all().values('attempted_by', 'challenge').annotate(score=Max('score')).order_by('attempted_by')
-        data = defaultdict(list)
+        scores = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
+            score=Max('score')
+        ).order_by('attempted_by')  #TODO: show time instead of score
+        data = defaultdict(lambda: [None for _ in range(
+            len(published_challenges))])  # create initial list of length no. of published challenges == column count
         for score in scores:
             score['score_norm'] = score['score'] / max_scores[score['challenge']]
             user = score.pop('attempted_by')
-            data[user].append(score)
+            column_idx = published_challenges.index(
+                score['challenge'])  # used to assign proper column in scoreboard table
+            data[user][column_idx] = score
         sorted_data = sorted(
             data.items(),
-            key=lambda x: sum(y['score_norm'] for y in x[1]),
+            key=lambda x: sum(y['score_norm'] if y else 0 for y in x[1]),
             reverse=True
         )
-        print(sorted_data)
-        return data
+        return sorted_data
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['challenges'] = Challenge.objects.filter(is_published=True).order_by('created_date_time')[:6]  # TODO: pagination for challenges
+        context['challenges'] = Challenge.objects.filter(is_published=True).order_by('created_date_time')
         context['username'] = self.username
         context['scores'] = self.scores
         return context
@@ -65,20 +70,25 @@ class HomeView(TemplateView):
 
 
 class ChallengeDisplayView(DetailView):
+    SIGNATURE_MESSAGE = "%s;%s"
     template_name = 'solutions/solution_template.html'
     model = Challenge
     signer = Signer()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        generator_module = importlib.import_module(self.object.generator_script_path, package='home')
+        fields, seed = generator_module.Generator().generate_challenge_fields()
         context['form'] = ChallengeForm(
-            fields=
-            (
-                Field(name='width', value='11', field_type=Field.INPUT),
-                Field(name='height', value='10', field_type=Field.INPUT),
-                Field(name='solution', field_type=Field.SOLUTION),
-            ),
-            initial={'timestamp': ChallengeDisplayView.signer.sign(timezone.now().isoformat())}
+            fields=fields,
+            initial={'signature':
+                ChallengeDisplayView.signer.sign(
+                    ChallengeDisplayView.SIGNATURE_MESSAGE % (
+                        timezone.now().isoformat(),
+                        seed
+                    )
+                )
+            }
         )
         return context
 
@@ -93,23 +103,22 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
 
     def save_solution_attempt(self, data):
         username = get_username(self.request)
-        logger.debug(f"username = {username}")
         solver_module = importlib.import_module(self.object.solver_script_path, package='home')
-        timestamp = verify_timestamp(data.get('timestamp', ''))
+        timestamp, seed = verify_signature(data.get('signature', ''))
         if timestamp:
             duration = timezone.now() - datetime.fromisoformat(timestamp)
         else:
             return
         logger.debug(f"started - {timestamp}, finished - {timezone.now()}")
         logger.debug(f"Solution took {duration}.")
-        solver = solver_module.Solver(**data)
+        solver = solver_module.Solver(seed, **data)
         attempt = ChallengeAttempt(
             challenge=self.object,
             attempted_by=username,
             attempted_date_time=timestamp,
-            score=solver.get_score(),
+            score=solver.get_score(duration),
             duration=duration,
-            completed=solver.solve(data['solution'])
+            completed=solver.solve(data['solution']),
         )
         attempt.save()
 

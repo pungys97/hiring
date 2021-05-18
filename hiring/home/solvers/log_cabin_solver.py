@@ -1,23 +1,28 @@
 import math
-from random import randint
+from datetime import timedelta
 
 from .base_solver import BaseSolver
+from ..generators.log_cabin_generator import Generator
 
 
 class Solver(BaseSolver):
     required_params = ('width', 'height', )
 
-    def get_score(self, *args, **kwargs):
-        return randint(0, 100)
+    def get_score(self, duration) -> float:
+        benchmark_duration = timedelta(seconds=10)
+        return benchmark_duration/duration * 100
 
     def solve(self, solution):
         return (self._build_roof() + self._build_base()) == solution
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, seed, **kwargs):
+        super().__init__()
         assert all([required_param in kwargs.keys() for required_param in Solver.required_params]), "Not all required arguments were filled."
+        generator = Generator(seed=int(seed))
         self.width = int(kwargs.get("width")[0])
+        assert self.width == generator.width, f"Width - {self.width} from the form does not correspond to generated one - {generator.width}."
         self.height = int(kwargs.get("height")[0])
+        assert self.height == generator.height, f"Height - {self.height} from the form does not correspond to generated one - {generator.height}."
         self.middle_of_the_house = math.floor(self.width / 2)
         self.height_width_from_middle = math.ceil((self.width - 4) / 2)
         self.roof_brick = "x"

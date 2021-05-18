@@ -19,10 +19,10 @@ def get_logger(name):
     return logger
 
 
-def verify_timestamp(signed_timestamp: str):
+def verify_signature(signed_signature: str):
     signer = Signer()
     try:
-        original_timestamp = signer.unsign(signed_timestamp)
+        original_timestamp, seed = signer.unsign(signed_signature).split(";")
     except BadSignature:
-        original_timestamp = None
-    return original_timestamp
+        original_timestamp, seed = None, None
+    return original_timestamp, seed

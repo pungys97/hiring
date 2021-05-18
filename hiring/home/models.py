@@ -4,6 +4,11 @@ from django.urls import reverse
 
 
 class Challenge(models.Model):
+    SCOREBOARD_RESULTS_CHOICES = (
+        ('t', 'Duration'),
+        ('s', 'Score')
+    )
+
     name = models.CharField(max_length=50, blank=False)
     description = models.TextField(blank=True)
     solver_script_path = models.CharField(max_length=255, default="")
@@ -18,6 +23,7 @@ class Challenge(models.Model):
     time_limit_in_minutes = models.IntegerField(default=10)
     slug = models.SlugField()
     generator_script_path = models.CharField(max_length=255, default="")
+    scoreboard_field = models.CharField(max_length=1, default='s', choices=SCOREBOARD_RESULTS_CHOICES)
 
     def __str__(self):
         return self.name

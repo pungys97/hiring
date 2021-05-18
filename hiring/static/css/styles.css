@@ -10041,7 +10041,7 @@ h3 {
   }
 }
 .page-section {
-  padding: 6rem 0;
+  padding: 4rem 0;
 }
 .page-section .page-section-heading {
   font-size: 2.25rem;
@@ -10150,7 +10150,7 @@ h3 {
     transition: padding-top 0.3s, padding-bottom 0.3s;
   }
   #mainNav .navbar-brand {
-    font-size: 1.75em;
+    font-size: 1.3em;
     transition: font-size 0.3s;
   }
   #mainNav .navbar-nav {
@@ -10170,7 +10170,7 @@ h3 {
     padding-bottom: 0.5rem;
   }
   #mainNav.navbar-shrink .navbar-brand {
-    font-size: 1.5em;
+    font-size: 1.2em;
   }
 }
 .masthead {
