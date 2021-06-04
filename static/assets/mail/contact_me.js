@@ -14,6 +14,7 @@ $(function () {
             var phone = $("input#phone").val();
             var message = $("textarea#message").val();
             var firstName = name; // For Success/Failure Message
+            var csrftoken = getCookie('csrftoken')
             // Check for white space in name for Success/Fail message
             if (firstName.indexOf(" ") >= 0) {
                 firstName = name.split(" ").slice(0, -1).join(" ");
@@ -21,8 +22,11 @@ $(function () {
             $this = $("#sendMessageButton");
             $this.prop("disabled", true); // Disable submit button until AJAX call is complete to prevent duplicate messages
             $.ajax({
-                url: "/assets/mail/contact_me.php",
+                url: "/contact_us/",
                 type: "POST",
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
                 data: {
                     name: name,
                     phone: phone,

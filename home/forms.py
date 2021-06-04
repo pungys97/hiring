@@ -1,4 +1,21 @@
+import phonenumbers
 from django import forms
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+from home.utils import get_logger
+
+logger = get_logger(__name__)
+
+
+def validate_phone(value):
+    logger.debug(f'{value} - phone number to be validated')
+    number = phonenumbers.parse(value, None)
+    if not number:
+        raise ValidationError(
+            _('%(value)s is not a valid phone number'),
+            params={'value': value},
+        )
 
 
 class ChallengeForm(forms.Form):
@@ -25,3 +42,10 @@ class ChallengeForm(forms.Form):
         super().__init__(*args, **kwargs)
         for field in fields:
             self.fields[field.name] = field.widget
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=128)
+    email = forms.EmailField()
+    phone = forms.CharField(max_length=13, validators=[validate_phone])
+    message = forms.CharField(widget=forms.Textarea)

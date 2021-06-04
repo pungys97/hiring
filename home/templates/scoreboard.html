@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-target="#usernameModal" role="button">
+    <i class="fas fa-edit"></i>
+</a>
+{% endblock %}
+{% block menu-items %}
+    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{% url 'home' %}">Back</a></li>
+{% endblock %}
+{% block masthead %}
+        <header class="masthead text-white text-center">
+            <div class="container">
+                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Scoreboard</h2>
+                <!-- Icon Divider-->
+                <div class="divider-custom">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                <div class="row justify-content-center">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Username</th>
+                                {% for challenge in challenges %}
+                                    <th scope="col">{{ challenge.name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for score in page_obj %}
+                                <tr>
+                                    <th scope="row">{{ forloop.counter }}</th>
+                                    <td>{{ score.0 }}</td>
+                                    {% for challenge in score.1 %}
+                                        {% if challenge %}
+                                            <td>{{ challenge.score }}</td>
+                                        {% else %}
+                                            <td><i class="fas fa-times"></i></td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if page_two_plus %}
+                        <div class="text-center">
+                            <ul class="pagination justify-content-center" id="scorePagination">
+                                {% if page_obj.has_previous %}
+                                    <li><a href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a></li>
+                                {% else %}
+                                    <li class="disabled"><span><i class="fa fa-chevron-left" aria-hidden="true"></i></span></li>
+                                {% endif %}
+
+                                {% if page_obj.number|add:'-4' > 1 %}
+                                    <li><a href="?page={{ page_obj.number|add:'-5' }}">&hellip;</a></li>
+                                {% endif %}
+
+                                {% for i in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == i %}
+                                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                                    {% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+                                        <li><a href="?page={{ i }}">{{ i }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+                                    <li><a href="?page={{ page_obj.number|add:'5' }}">&hellip;</a></li>
+                                {% endif %}
+
+                                {% if page_obj.has_next %}
+                                    <li><a href="?page={{ page_obj.next_page_number }}"><i class="fa fa-chevron-right" aria-hidden="true"></i></a></li>
+                                {% else %}
+                                    <li class="disabled"><span><i class="fa fa-chevron-right" aria-hidden="true"></i></span></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+        <!-- Footer-->
+        <footer class="footer text-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <!-- Footer Social Icons-->
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <h4 class="text-uppercase mb-4">Around the Web</h4>
+                        <a class="btn btn-outline-light btn-social mx-1" href="#!"><i class="fab fa-fw fa-facebook-f"></i></a>
+                        <a class="btn btn-outline-light btn-social mx-1" href="#!"><i class="fab fa-fw fa-twitter"></i></a>
+                        <a class="btn btn-outline-light btn-social mx-1" href="#!"><i class="fab fa-fw fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- Copyright Section-->
+        <div class="copyright py-4 text-center text-white">
+            <div class="container"><small>Copyright © Deloitte IA Team 2021</small></div>
+        </div>
+        <!-- Username -->
+        <div class="modal fade" id="usernameModal" tabindex="-1" role="dialog" aria-labelledby="usernameModalTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="usernameModalLongTitle">Select your Username</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  <div class="input-group mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">@</span>
+                      </div>
+                      <input value="{{ username }}" id="username-input" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                      <div class="input-group-append">
+                          <button class="btn btn-outline-secondary" type="button" data-dismiss="modal" onclick="setUsernameCookie();">Submit</button>
+                      </div>
+                    </div>
+              </div>
+<!--              <div class="modal-footer">-->
+<!--                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="">Save</button>-->
+<!--              </div>-->
+            </div>
+          </div>
+</div>
+{% endblock %}
+{% block js %}
+{% endblock %}

@@ -7,7 +7,7 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
 {% endblock %}
 {% block menu-items %}
     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#tasks">Challenges</a></li>
-    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#score">Scoreboard</a></li>
+    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#score">Top 5</a></li>
     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#about">About</a></li>
     <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#contact">Apply</a></li>
 {% endblock %}
@@ -60,7 +60,12 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
         <section class="page-section" id="score">
             <div class="container">
                 <!-- Portfolio Section Heading-->
-                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Scores</h2>
+                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">
+                    Top 5
+                </h2>
+                <div class="text-center text-uppercase">
+                    <a href="{% url 'scoreboard' %}">See all</a>
+                </div>
                 <!-- Icon Divider-->
                 <div class="divider-custom">
                     <div class="divider-custom-line"></div>
@@ -79,7 +84,7 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
                             </tr>
                         </thead>
                         <tbody>
-                            {% for score in scores %}
+                            {% for score in top_5 %}
                                 <tr>
                                     <th scope="row">{{ forloop.counter }}</th>
                                     <td>{{ score.0 }}</td>
@@ -147,7 +152,7 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
                 <div class="row">
                     <div class="col-lg-8 mx-auto">
                         <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19.-->
-                        <form id="contactForm" name="sentMessage" novalidate="novalidate">
+                        <form action="{% url 'contact' %}" id="contactForm" name="sentMessage" novalidate="novalidate" method="post">
                             <div class="control-group">
                                 <div class="form-group floating-label-form-group controls mb-0">
                                     <label>Name</label>
@@ -176,7 +181,7 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
                                     <p class="help-block text-danger"></p>
                                 </div>
                             </div>
-                            <br />
+                            <br/>
                             <div id="success"></div>
                             <div class="form-group float-right"><button class="btn btn-primary btn-xl" id="sendMessageButton" type="submit">Send</button></div>
                         </form>
@@ -200,7 +205,7 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
         </footer>
         <!-- Copyright Section-->
         <div class="copyright py-4 text-center text-white">
-            <div class="container"><small>Copyright © Petr Ungar 2021</small></div>
+            <div class="container"><small>Copyright © Deloitte IA Team 2021</small></div>
         </div>
         <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes)-->
         <div class="scroll-to-top d-lg-none position-fixed">
