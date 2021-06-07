@@ -36,24 +36,11 @@ steps:
         "python",
         "manage.py",
         "makemigrations",
-      ]
-
-  - id: "apply migrations"
-    name: "gcr.io/google-appengine/exec-wrapper"
-    args:
-      [
-        "-i",
-        "gcr.io/$PROJECT_ID/${_SERVICE_NAME}",
-        "-s",
-        "${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}",
-        "-e",
-        "SETTINGS_NAME=${_SECRET_SETTINGS_NAME}",
-        "--",
+        "&&",
         "python",
         "manage.py",
         "migrate",
       ]
-
   - id: "collect static"
     name: "gcr.io/google-appengine/exec-wrapper"
     args:
