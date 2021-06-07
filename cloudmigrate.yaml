@@ -58,7 +58,7 @@ steps:
       ]
 
 substitutions:
-  _INSTANCE_NAME: django-instance
+  _INSTANCE_NAME: automation-challenge
   _REGION: europe-west4
   _SERVICE_NAME: automation-challenge-service
   _SECRET_SETTINGS_NAME: django_settings
