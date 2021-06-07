@@ -137,4 +137,3 @@ dmypy.json
 .pyre/
 
 /hiring/db.sqlite3
-/home/migrations/0*
