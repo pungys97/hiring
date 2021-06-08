@@ -43,7 +43,7 @@
 {% block content %}
 <div class="container">
     <div class="col-12 pb-5">
-        <form action="{% url 'challenge_detail' object.slug %}" method="POST">
+        <form action="{% url 'challenge_detail' object.slug %}" method="POST" id="challengeForm">
             {% csrf_token %}
             {% for field in form %}
             <div class="form-group text-uppercase text-secondary">
@@ -54,6 +54,7 @@
                 {% endif %}
             </div>
             {% endfor %}
+            <div id="success"></div>
             <div class="form-group">
                 <button class="btn btn-primary btn-l float-right" id="submit-button" type="submit">Submit</button>
             </div>

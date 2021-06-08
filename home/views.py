@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.signing import Signer
 from django.db.models import Max
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -152,18 +152,23 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
         logger.debug(f"started - {timestamp}, finished - {timezone.now()}")
         logger.debug(f"Solution took {duration}.")
         solver = solver_module.Solver(seed, **data)
+        completed = solver.solve(data['solution'])
         attempt = ChallengeAttempt(
             challenge=self.object,
             attempted_by=username,
             attempted_date_time=timestamp,
             score=solver.get_score(duration),
             duration=duration,
-            completed=solver.solve(data['solution']),
+            completed=completed,
         )
-        attempt.save()
+        if completed:
+            attempt.save()
+        return completed
 
     def form_valid(self, form):
-        self.save_solution_attempt(form.data)
+        completed = self.save_solution_attempt(form.data)
+        if not completed:
+            return HttpResponseBadRequest()
         return super().form_valid(form)
 
     def get_success_url(self):
