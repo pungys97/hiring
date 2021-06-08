@@ -198,7 +198,7 @@ class ContactView(FormView):
             recipient_list=LEAD_RECIPIENTS,
             fail_silently=False,
         )
-        return JsonResponse(form.errors, status=200)
+        return JsonResponse({}, status=200)
 
     def form_invalid(self, form):
         return JsonResponse(form.errors, status=400)

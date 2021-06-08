@@ -9,11 +9,10 @@ class Solver(BaseSolver):
     required_params = ('width', 'height', )
 
     def get_score(self, duration) -> float:
-        benchmark_duration = timedelta(seconds=10)
+        benchmark_duration = timedelta(minutes=1)
         return benchmark_duration/duration * 100
 
     def solve(self, solution):
-        print(self._build_roof() + self._build_base())
         return (self._build_roof() + self._build_base()) == solution
 
     def __init__(self, seed, **kwargs):
