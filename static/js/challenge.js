@@ -44,3 +44,32 @@ if (timelimit) {
     const deadline = new Date(Date.parse(new Date()) + JSON.parse(timelimit.textContent) * 60 * 1000);
     initializeClock('clockdiv', deadline);
 }
+
+$('#challengeForm').submit(function(e){
+//  handle incorrect answers do not rerender the form
+    let form = this;
+    e.preventDefault();
+    $.ajax({
+        type: form.method,
+        url: form.action,
+        data: $('#challengeForm').serialize(),
+        success: function(data){
+            location.href = '/'
+        },
+        error: function () {
+            // Fail message
+            $("#success").html("<div class='alert alert-danger'>");
+            $("#success > .alert-danger")
+                .html(
+                    "<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;"
+                )
+                .append("</button>");
+            $("#success > .alert-danger").append(
+                $("<strong>").text(
+                    "Ooops, that's not correct. Please try again!"
+                )
+            );
+            $("#success > .alert-danger").append("</div>");
+        },
+    });
+});

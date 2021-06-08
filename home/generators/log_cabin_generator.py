@@ -7,7 +7,6 @@ class Generator(BaseGenerator):
         super().__init__(*args, seed=seed, **kwargs)
         self.width = self.rng.randrange(5, 50, 2)
         self.height = self.rng.randrange(5, 51)
-        print(f"seed - {self.seed}, width - {self.width}, height - {self.height}")
 
     def generate_challenge_fields(self):
         return (

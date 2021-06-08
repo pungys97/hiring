@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block menu-items %}
+    <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="{% url 'home' %}">Back</a></li>
 {% endblock %}
 
 {% block masthead %}
@@ -27,6 +28,13 @@
                 <div class="smalltext">Seconds</div>
             </div>
         </div>
+        <div>
+            <p class="mt-5 text-justify">
+                {% autoescape off %}
+                    {{ object.description }}{# description should contain HTML formatted text describing the challenge #}
+                {% endautoescape %}
+            </p>
+        </div>
     </div>
 </div>
 {% endif %}
@@ -34,8 +42,8 @@
 
 {% block content %}
 <div class="container">
-    <div class="col-12 py-5">
-        <form action="{% url 'challenge_detail' object.slug %}" method="POST">
+    <div class="col-12 pb-5">
+        <form action="{% url 'challenge_detail' object.slug %}" method="POST" id="challengeForm">
             {% csrf_token %}
             {% for field in form %}
             <div class="form-group text-uppercase text-secondary">
@@ -46,6 +54,7 @@
                 {% endif %}
             </div>
             {% endfor %}
+            <div id="success"></div>
             <div class="form-group">
                 <button class="btn btn-primary btn-l float-right" id="submit-button" type="submit">Submit</button>
             </div>

@@ -10313,3 +10313,7 @@ form .row:first-child .floating-label-form-group {
 #scorePagination > li[disabled] * {
   background-color: green !important;
 }
+
+.textHRef {
+    color: var(--secondary);
+}
