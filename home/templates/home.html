@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}
-Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-target="#usernameModal" role="button">
+Competing as <span id="username">{{ username }}</span><a class="navbar-brand" data-toggle="modal" data-target="#usernameModal" role="button">
     <i class="fas fa-edit"></i>
 </a>
 {% endblock %}
@@ -25,7 +25,20 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
                 <div class="divider-custom-line"></div>
             </div>
             <!-- Masthead Subheading-->
-            <p class="masthead-subheading font-weight-light mb-0">Test your programming and software automation skills</p>
+            <p class="masthead-subheading font-weight-light text-justify mb-0">
+                Test your programming and software automation skills. Most of the challenges can be done manually, however
+                in order to score high on the scoreboard you need to be fast. This is in fact the core aim of automation
+                in general, to speed things up. Therefore we recommend using some UI automation tools, such as
+                BluePrism, UiPath or some Python library, hence the Automation challenge. A quick summary of RPA (Robotic Process Automation):
+            </p>
+            <div class="py-2">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/g-s-XXM2T_I" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p class="masthead-subheading font-weight-light text-justify mb-0">
+                For the challenges, you can use the username {{ username }}
+                or you can <a class="textHRef" data-toggle="modal" data-target="#usernameModal" role="button">choose your own</a> to
+                compete against others. You have as many tries as you wish and only the best one counts. So let's get into it.
+            </p>
         </div>
     </header>
 {% endblock %}
@@ -118,11 +131,9 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
                     <div class="col-lg-4 ml-auto">
                         <p class="lead text-justify">
                             We are Deloitte's Intelligent Automation team. Our daily bread is to lift routine and
-                            repetitive
-                            tasks of our clients' hands.
+                            repetitive tasks of our clients' hands.
                             With the use of latest technology we automate, speed up and innovate the back-office
-                            processes of many
-                            large clients.
+                            processes of many large clients.
                         </p>
                     </div>
                     <div class="col-lg-4 mr-auto">
@@ -234,6 +245,11 @@ Competing as {{ username }}<a class="navbar-brand" data-toggle="modal" data-targ
                                     <!-- Portfolio Modal - Image-->
                                     <img class="img-fluid rounded mb-5" src="{% static challenge.image_src_path %}" alt="" />
                                     <!-- Portfolio Modal - Text-->
+                                    <p class="mb-5 text-justify">
+                                        {% autoescape off %}
+                                            {{ challenge.description }}{# description should contain HTML formatted text describing the challenge #}
+                                        {% endautoescape %}
+                                    </p>
                                     {% include challenge.assignment_modal_template_path %}
                                     <div class="row justify-content-center py-3">
                                         <a class="btn btn-primary"

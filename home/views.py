@@ -1,12 +1,14 @@
 import importlib
 from collections import defaultdict
 from datetime import datetime
+from pprint import pprint
 
 from django.core.cache import cache
+from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.signing import Signer
 from django.db.models import Max
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -16,6 +18,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
 from random_username.generate import generate_username
 
+from hiring.settings import LEAD_RECIPIENTS
 from .forms import ChallengeForm, ContactForm
 from .models import Challenge, ChallengeAttempt
 from .utils import get_logger, verify_signature
@@ -28,7 +31,7 @@ CACHE_SCORES_KEY_VALID_FOR = 10 * 60  # cache for 10 mins
 
 def get_username(request):
     username = request.COOKIES.get('username', generate_username()[0])
-    return username
+    return username.lower()
 
 
 def published_challenges():
@@ -89,7 +92,7 @@ class ScoreboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         scores = cache.get(CACHE_SCORES_KEY, compute_scores())
-        paginator = Paginator(scores, 2)
+        paginator = Paginator(scores, 20)
         page_number = int(self.request.GET.get('page', '1'))
         page_obj = paginator.get_page(page_number)
 
@@ -179,11 +182,18 @@ class ChallengeDetailView(View):
 
 
 class ContactView(FormView):
+    template_name = 'home.html'  # not used
     form_class = ContactForm
 
     def form_valid(self, form):
-        print(form)
-        return super().form_valid(form)
+        send_mail(
+            'New lead from Automation Challenge',
+            '\n'.join([f'{key}: {value}' for key, value in form.cleaned_data.items()]),
+            from_email=None,   # defined in settings.py DEFAULT_FROM_EMAIL
+            recipient_list=LEAD_RECIPIENTS,
+            fail_silently=False,
+        )
+        return JsonResponse(form.errors, status=200)
 
-    def get_success_url(self):
-        return HttpResponse(200)
+    def form_invalid(self, form):
+        return JsonResponse(form.errors, status=400)

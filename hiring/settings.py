@@ -38,6 +38,18 @@ LOGGING_LEVEL = logging.DEBUG
 LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_TO_CONSOLE = True
 
+#DataFlair
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'rpachallenge.tech@gmail.com'
+EMAIL_HOST_USER = 'rpachallenge.tech@gmail.com'
+EMAIL_HOST_PASSWORD = 'Deloitte2019RPA!'
+LEAD_RECIPIENTS = (
+    'pungar@deloittece.com',
+)
 
 # Application definition
 
@@ -144,3 +156,10 @@ STATICFILES_DIRS = [
 
 if GCP:
     from hiring.settings_gcp import *
+else:
+    STATIC_URL = '/static/'
+
+    STATICFILES_FINDERS = (
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    )

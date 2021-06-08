@@ -9,13 +9,17 @@ logger = get_logger(__name__)
 
 
 def validate_phone(value):
-    logger.debug(f'{value} - phone number to be validated')
-    number = phonenumbers.parse(value, None)
-    if not number:
-        raise ValidationError(
+    error = ValidationError(
             _('%(value)s is not a valid phone number'),
             params={'value': value},
         )
+    logger.debug(f'{value} - phone number to be validated')
+    try:
+        number = phonenumbers.parse(value, None)
+    except:
+        raise error
+    if not number:
+        raise error
 
 
 class ChallengeForm(forms.Form):
