@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.signing import Signer
-from django.db.models import Max
+from django.db.models import Max, F, Min
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils import timezone
@@ -39,28 +39,34 @@ def published_challenges():
 
 
 def compute_scores():
-    published_challenges_ = tuple(published_challenges().values_list('id', flat=True))
+    published_challenges_ids, published_challenges_score_fields = map(tuple, zip(*published_challenges().values_list('id', 'scoreboard_field')))
     published_challenges_attempts = ChallengeAttempt.objects.filter(challenge__is_published=True)
-    max_scores = published_challenges_attempts.values('challenge').annotate(max_score=Max('score'))
-    max_scores = {challenge['challenge']: challenge['max_score'] for challenge in max_scores}
-    scores = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
-        score=Max('score')
+    max_scores = get_max_scores_for_each_challenge(published_challenges_attempts)
+    scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
+        score=Max('score'), duration=Min('duration')
     ).order_by('attempted_by')  # TODO: show time instead of score
-    data = defaultdict(lambda: [None for _ in range(
-        len(published_challenges_))])  # create initial list of length no. of published challenges == column count
-    for score in scores:
+    data = defaultdict(lambda: [None for _ in range(len(published_challenges_ids))])  # create initial list of length no.
+    # of published challenges == column count, so that the table row has always correct number of columns
+    for score in scores_by_user:
+        column_idx = published_challenges_ids.index(score['challenge'])  # used to assign proper column in scoreboard table
+        show_norm_score = published_challenges_score_fields[column_idx] == 's'  # see details in models.py
         score['score_norm'] = score['score'] / max_scores[score['challenge']]
+        score['score_detail_to_show'] = score['score_norm'] if show_norm_score else score['duration']
         user = score.pop('attempted_by')
-        column_idx = published_challenges_.index(
-            score['challenge'])  # used to assign proper column in scoreboard table
         data[user][column_idx] = score
-    sorted_data = sorted(
+    sorted_scores = sorted(
         data.items(),
         key=lambda x: sum(y['score_norm'] if y else 0 for y in x[1]),
         reverse=True
     )
-    cache.set(CACHE_SCORES_KEY, sorted_data, )
-    return sorted_data
+    cache.set(CACHE_SCORES_KEY, sorted_scores, )
+    return sorted_scores
+
+
+def get_max_scores_for_each_challenge(published_challenges_attempts):
+    max_scores = published_challenges_attempts.values('challenge').annotate(max_score=Max('score'))
+    max_scores = {challenge['challenge']: challenge['max_score'] for challenge in max_scores}
+    return max_scores
 
 
 class HomeView(TemplateView):

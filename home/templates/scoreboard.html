@@ -34,7 +34,7 @@ Competing as {{ username }}
                                     <td>{{ score.0 }}</td>
                                     {% for challenge in score.1 %}
                                         {% if challenge %}
-                                            <td>{{ challenge.score }}</td>
+                                            <td>{{ challenge.score_detail_to_show }}</td>
                                         {% else %}
                                             <td><i class="fas fa-times"></i></td>
                                         {% endif %}
