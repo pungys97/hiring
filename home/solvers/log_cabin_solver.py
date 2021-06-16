@@ -8,11 +8,11 @@ from ..generators.log_cabin_generator import Generator
 class Solver(BaseSolver):
     required_params = ('width', 'height', )
 
-    def get_score(self, duration) -> float:
+    def get_score(self, duration, **kwargs):
         benchmark_duration = timedelta(minutes=1)
         return benchmark_duration/duration * 100
 
-    def solve(self, solution):
+    def check_solution(self, solution):
         return (self._build_roof() + self._build_base()) == solution
 
     def __init__(self, seed, **kwargs):

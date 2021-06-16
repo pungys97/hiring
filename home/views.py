@@ -1,14 +1,12 @@
 import importlib
 from collections import defaultdict
-from datetime import datetime
-from pprint import pprint
-
+from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.signing import Signer
-from django.db.models import Max, F, Min
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.db.models import Max, Min, F
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -18,7 +16,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
 from random_username.generate import generate_username
 
-from hiring.settings import LEAD_RECIPIENTS
+from hiring.settings import LEAD_RECIPIENTS, GCP
 from .forms import ChallengeForm, ContactForm
 from .models import Challenge, ChallengeAttempt
 from .utils import get_logger, verify_signature
@@ -42,9 +40,12 @@ def compute_scores():
     published_challenges_ids, published_challenges_score_fields = map(tuple, zip(*published_challenges().values_list('id', 'scoreboard_field')))
     published_challenges_attempts = ChallengeAttempt.objects.filter(challenge__is_published=True)
     max_scores = get_max_scores_for_each_challenge(published_challenges_attempts)
-    scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
-        score=Max('score'), duration=Min('duration')
-    ).order_by('attempted_by')  # TODO: show time instead of score
+    if GCP:  #works on Postgre only
+        scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').order_by('-score').distinct('attempted_by', 'challenge')
+    else:
+        scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
+            score=Max('score'), duration=Min('duration')
+        ).order_by('attempted_by')  # TODO: show time instead of score
     data = defaultdict(lambda: [None for _ in range(len(published_challenges_ids))])  # create initial list of length no.
     # of published challenges == column count, so that the table row has always correct number of columns
     for score in scores_by_user:
@@ -59,7 +60,6 @@ def compute_scores():
         key=lambda x: sum(y['score_norm'] if y else 0 for y in x[1]),
         reverse=True
     )
-    cache.set(CACHE_SCORES_KEY, sorted_scores, )
     return sorted_scores
 
 
@@ -78,7 +78,12 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['top_5'] = cache.get(CACHE_SCORES_KEY, compute_scores())[:5]  # get top 5
+        scores = cache.get(CACHE_SCORES_KEY)
+        if not scores:
+            logger.debug("Top 5 not cached.")
+            scores = compute_scores()
+            cache.set(CACHE_SCORES_KEY, scores)
+        context['top_5'] = scores[:5]
         context['challenges'] = published_challenges()
         context['username'] = self.username
         return context
@@ -97,7 +102,7 @@ class ScoreboardView(TemplateView):
         return get_username(self.request)
 
     def get_context_data(self, **kwargs):
-        scores = cache.get(CACHE_SCORES_KEY, compute_scores())
+        scores = compute_scores()
         paginator = Paginator(scores, 20)
         page_number = int(self.request.GET.get('page', '1'))
         page_obj = paginator.get_page(page_number)
@@ -158,12 +163,14 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
         logger.debug(f"started - {timestamp}, finished - {timezone.now()}")
         logger.debug(f"Solution took {duration}.")
         solver = solver_module.Solver(seed, **data)
-        completed = solver.solve(data['solution'])
+        completed = solver.check_solution(data['solution'])
+        if duration > timedelta(minutes=self.object.time_limit_in_minutes):
+            return False  # not completed
         attempt = ChallengeAttempt(
             challenge=self.object,
             attempted_by=username,
             attempted_date_time=timestamp,
-            score=solver.get_score(duration),
+            score=solver.get_score(duration, ),
             duration=duration,
             completed=completed,
         )

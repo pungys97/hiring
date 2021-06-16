@@ -34,7 +34,7 @@ LOGIN_REDIRECT_URL = '/'
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 LOG_FILE = r"debug_log.log"
-LOGGING_LEVEL = logging.DEBUG
+LOGGING_LEVEL = logging.DEBUG if DEBUG else logging.INFO
 LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_TO_CONSOLE = True
 
