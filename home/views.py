@@ -45,7 +45,7 @@ def compute_scores():
     else:
         scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
             score=Max('score'), duration=Min('duration')
-        ).order_by('attempted_by')  # TODO: show time instead of score
+        ).order_by('attempted_by')
     data = defaultdict(lambda: [None for _ in range(len(published_challenges_ids))])  # create initial list of length no.
     # of published challenges == column count, so that the table row has always correct number of columns
     for score in scores_by_user:
@@ -128,7 +128,7 @@ class ChallengeDisplayView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        generator_module = importlib.import_module(self.object.generator_script_path, package='home')
+        generator_module = importlib.import_module(self.object.generator_script_import_statement, package='home')
         fields, seed = generator_module.Generator().generate_challenge_fields()
         context['form'] = ChallengeForm(
             fields=fields,
@@ -154,7 +154,7 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
 
     def save_solution_attempt(self, data):
         username = get_username(self.request)
-        solver_module = importlib.import_module(self.object.solver_script_path, package='home')
+        solver_module = importlib.import_module(self.object.solver_script_import_statement, package='home')
         timestamp, seed = verify_signature(data.get('signature', ''))
         if timestamp:
             duration = timezone.now() - datetime.fromisoformat(timestamp)
