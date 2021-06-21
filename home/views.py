@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views import View
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.generic import TemplateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
@@ -33,14 +34,19 @@ def get_username(request):
 
 
 def published_challenges():
-    return Challenge.objects.filter(is_published=True).order_by('created_date_time')
+    """
+    Returns all published challenges sorted from most recently created to least. Number of published challenges should
+    never be too high (more than 5/6) due to layout constraints.
+    :return: Queryset of challenges
+    """
+    return Challenge.objects.filter(is_published=True).order_by('-created_date_time')
 
 
 def compute_scores():
     published_challenges_ids, published_challenges_score_fields = map(tuple, zip(*published_challenges().values_list('id', 'scoreboard_field')))
     published_challenges_attempts = ChallengeAttempt.objects.filter(challenge__is_published=True)
     max_scores = get_max_scores_for_each_challenge(published_challenges_attempts)
-    if GCP:  #works on Postgre only
+    if GCP:  # works on Postgres only
         scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').order_by('-score').distinct('attempted_by', 'challenge')
     else:
         scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
