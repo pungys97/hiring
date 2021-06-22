@@ -46,12 +46,12 @@ def compute_scores():
     published_challenges_ids, published_challenges_score_fields = map(tuple, zip(*published_challenges().values_list('id', 'scoreboard_field')))
     published_challenges_attempts = ChallengeAttempt.objects.filter(challenge__is_published=True)
     max_scores = get_max_scores_for_each_challenge(published_challenges_attempts)
-    if GCP:  # works on Postgres only
-        scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').order_by('-score').distinct('attempted_by', 'challenge')
-    else:
-        scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
-            score=Max('score'), duration=Min('duration')
-        ).order_by('attempted_by')
+    # if GCP:  # works on Postgres only
+    #     scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').order_by('-score').distinct('attempted_by', 'challenge')
+    # else:
+    scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
+        score=Max('score'), duration=Min('duration') # typically fastest == min duration, true for timed challenges false for scored one
+    ).order_by('attempted_by')
     data = defaultdict(lambda: [None for _ in range(len(published_challenges_ids))])  # create initial list of length no.
     # of published challenges == column count, so that the table row has always correct number of columns
     for score in scores_by_user:
