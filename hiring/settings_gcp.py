@@ -65,7 +65,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Change this to "False" when you are ready for production
-DEBUG = True
+DEBUG = False
 
 # SECURITY WARNING: It's recommended that you change this setting when
 # running in production. The URL will be known once you first deploy

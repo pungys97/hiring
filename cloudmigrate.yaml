@@ -22,6 +22,21 @@ steps:
     name: "gcr.io/cloud-builders/docker"
     args: ["push", "gcr.io/${PROJECT_ID}/${_SERVICE_NAME}"]
 
+  - id: "make migrations"
+      name: "gcr.io/google-appengine/exec-wrapper"
+      args:
+        [
+          "-i",
+          "gcr.io/$PROJECT_ID/${_SERVICE_NAME}",
+          "-s",
+          "${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}",
+          "-e",
+          "SETTINGS_NAME=${_SECRET_SETTINGS_NAME}",
+          "--",
+          "python",
+          "manage.py",
+          "makemigrations",
+
   - id: "apply migrations"
     name: "gcr.io/google-appengine/exec-wrapper"
     args:
@@ -38,24 +53,41 @@ steps:
         "migrate",
       ]
 
-  - id: "collect static"
-    name: "gcr.io/google-appengine/exec-wrapper"
-    args:
-      [
-        "-i",
-        "gcr.io/$PROJECT_ID/${_SERVICE_NAME}",
-        "-s",
-        "${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}",
-        "-e",
-        "SETTINGS_NAME=${_SECRET_SETTINGS_NAME}",
-        "--",
-        "python",
-        "manage.py",
-        "collectstatic",
-        "--verbosity",
-        "2",
-        "--no-input",
-      ]
+  - id: "add new challenges"
+      name: "gcr.io/google-appengine/exec-wrapper"
+      args:
+        [
+          "-i",
+          "gcr.io/$PROJECT_ID/${_SERVICE_NAME}",
+          "-s",
+          "${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}",
+          "-e",
+          "SETTINGS_NAME=${_SECRET_SETTINGS_NAME}",
+          "--",
+          "python",
+          "manage.py",
+          "loaddata",
+          "challenge.json",
+        ]
+
+#  - id: "collect static"
+#    name: "gcr.io/google-appengine/exec-wrapper"
+#    args:
+#      [
+#        "-i",
+#        "gcr.io/$PROJECT_ID/${_SERVICE_NAME}",
+#        "-s",
+#        "${PROJECT_ID}:${_REGION}:${_INSTANCE_NAME}",
+#        "-e",
+#        "SETTINGS_NAME=${_SECRET_SETTINGS_NAME}",
+#        "--",
+#        "python",
+#        "manage.py",
+#        "collectstatic",
+#        "--verbosity",
+#        "2",
+#        "--no-input",
+#      ]
 
 substitutions:
   _INSTANCE_NAME: automation-challenge

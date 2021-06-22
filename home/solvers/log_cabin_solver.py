@@ -12,8 +12,8 @@ class Solver(BaseSolver):
         benchmark_duration = timedelta(minutes=1)
         return benchmark_duration/duration * 100
 
-    def check_solution(self, solution):
-        return (self._build_roof() + self._build_base()) == solution
+    def check_solution(self, **kwargs):
+        return (self._build_roof() + self._build_base()) == kwargs.get('solution')[0]
 
     def __init__(self, seed, **kwargs):
         super().__init__()

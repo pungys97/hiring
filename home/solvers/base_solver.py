@@ -17,7 +17,7 @@ class BaseSolver(ABC):
         super().__init__()
 
     @abstractmethod
-    def check_solution(self, solution):
+    def check_solution(self, **kwargs):
         pass
 
     @abstractmethod

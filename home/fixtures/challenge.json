@@ -1,0 +1,44 @@
+[
+  {
+    "model": "home.challenge",
+    "pk": 1,
+    "fields": {
+      "created_date_time": "2021-06-08T08:19:02.994Z",
+      "name": "Log Cabin",
+      "description": "In this challenge, you are required to draw a small cabin out of unicode characters. You will be given two parameters\r\n<strong>width</strong> (odd number in range &lt5, 49 &gt) and <strong>height</strong> (number in range &lt5, 50 &gt). Based on these\r\ninputs you are required to draw a log cabin with a fence that will be <strong>width</strong> characters wide\r\nand <strong>height</strong> lines tall, the fence should always be 2 lines high with a supporting beam on each sides of the cabin.\r\nValid characters are <strong>x | = </strong>, each line needs to be exactly <strong>width</strong> characters wide (use spaces) and should be terminated with <strong>\\r\\n</strong>. \r\nTo make it a challenge, the goal is to build it as <strong>fast</strong> as possible.",
+      "solver_script_import_statement": ".solvers.log_cabin_solver",
+      "generator_script_import_statement": ".generators.log_cabin_generator",
+      "assignment_modal_template_path": "assignments/log_cabin_modal.html",
+      "image_src_path": "/assets/img/portfolio/log_cabin.png",
+      "created_by": 1,
+      "is_published": true,
+      "is_timed": true,
+      "max_score": 1.0,
+      "number_of_attempts": -1,
+      "time_limit_in_minutes": 10,
+      "slug": "log_cabin",
+      "scoreboard_field": "t"
+    }
+  },
+  {
+    "model": "home.challenge",
+    "pk": 4,
+    "fields": {
+      "created_date_time": "2021-06-17T08:30:50.727Z",
+      "name": "Piece of Cake",
+      "description": "Using regex should be a piece of cake for any aspiring (RPA) developer. In this challenge, you will test your regex skills on a simple task. \r\n<p>You will be given 3 input parameters:\r\n   <br><strong>Text</strong> - randomly generated text paragraph,\r\n   <br><strong>Word</strong> - a work that is contained (at least once) in the text,\r\n   <br><strong>Brackets</strong> - one type of brackets \"()\" or  \"[]\" or  \"{}\".</p>\r\n<p>You are required to answer the following:\r\n   <br><strong>Count</strong> - total number of occurrences of the given word in the given text,\r\n   <br><strong>First occurrence</strong> - index of the first occurrence of the word (starts with 0),\r\n   <br><strong>Count enclosed</strong> - count number of occurrences of the word that are enclosed in the given type of brackets.</p>",
+      "solver_script_import_statement": ".solvers.piece_of_cake_solver",
+      "generator_script_import_statement": ".generators.piece_of_cake_generator",
+      "assignment_modal_template_path": "assignments/piece_of_cake_modal.html",
+      "image_src_path": "/assets/img/portfolio/piece_of_cake.png",
+      "created_by": 1,
+      "is_published": true,
+      "is_timed": true,
+      "max_score": 1.0,
+      "number_of_attempts": -1,
+      "time_limit_in_minutes": 10,
+      "slug": "piece_of_cake",
+      "scoreboard_field": "s"
+    }
+  }
+]

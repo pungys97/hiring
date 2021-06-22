@@ -14,7 +14,7 @@ class Challenge(models.Model):
         ('s', 'Score')
     )
 
-    name = models.CharField(max_length=50, blank=False)
+    name = models.CharField(max_length=50, blank=False, unique=True)
     description = models.TextField(blank=True)
     solver_script_import_statement = models.CharField(max_length=255, default="", blank=True)
     generator_script_import_statement = models.CharField(max_length=255, default="", blank=True)
@@ -27,7 +27,7 @@ class Challenge(models.Model):
     max_score = models.FloatField()
     number_of_attempts = models.IntegerField(default=-1)
     time_limit_in_minutes = models.IntegerField(default=10)
-    slug = models.SlugField(blank=True)
+    slug = models.SlugField(blank=True, unique=True)
     scoreboard_field = models.CharField(max_length=1, default='s', choices=SCOREBOARD_RESULTS_CHOICES)
 
     def __str__(self):

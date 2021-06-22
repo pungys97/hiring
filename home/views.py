@@ -169,7 +169,7 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
         logger.debug(f"started - {timestamp}, finished - {timezone.now()}")
         logger.debug(f"Solution took {duration}.")
         solver = solver_module.Solver(seed, **data)
-        completed = solver.check_solution(data['solution'])
+        completed = solver.check_solution(**data)
         if duration > timedelta(minutes=self.object.time_limit_in_minutes):
             return False  # not completed
         attempt = ChallengeAttempt(

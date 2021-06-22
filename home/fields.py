@@ -33,7 +33,6 @@ class Field:
         )
         field.widget.attrs.update({'class': 'form-control'})
         if self.is_multi_line:
-            print("tu som")
             field.widget = forms.Textarea(
                 attrs={
                     'class': 'form-control ascii-art',  # same size chars
