@@ -143,3 +143,4 @@ dmypy.json
 /home/migrations/0004_alter_challenge_image_src_path.py
 /home/migrations/0005_auto_20210617_1024.py
 /home/migrations/0006_auto_20210622_1624.py
+/home/fixtures/all.json
