@@ -19,6 +19,8 @@ import environ
 import google.auth
 from google.cloud import secretmanager
 
+DEBUG = False
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # [START cloudrun_django_secretconfig]
