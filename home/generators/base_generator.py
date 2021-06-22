@@ -17,7 +17,6 @@ class BaseGenerator(ABC):
         """
         super().__init__(*args, **kwargs)
         self.seed = random.randrange(sys.maxsize) if not seed else seed
-        print(f"seed base = {self.seed}")
         self.rng = random.Random(self.seed)
 
     @abstractmethod
@@ -25,13 +24,5 @@ class BaseGenerator(ABC):
         """
         Generate random assignment for given Challenge.
         :return: returns tuple (iterable) of Fields and seed used for initialization.
-        """
-        pass
-
-    @abstractmethod
-    def get_fields(self) -> dict:
-        """
-        Generate dictionary of fields: value for given seed.
-        :return: dict.
         """
         pass

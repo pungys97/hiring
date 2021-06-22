@@ -17,9 +17,14 @@ class BaseSolver(ABC):
         super().__init__()
 
     @abstractmethod
-    def solve(self, solution):
+    def check_solution(self, **kwargs):
         pass
 
     @abstractmethod
-    def get_score(self, duration: timedelta) -> float:
+    def get_score(self, **kwargs) -> float:
+        """
+        Should return a float number representing score in descending fashion. 1st has the highest last the lowest.
+        :param kwargs: any value required to determine the score
+        :return: score
+        """
         pass

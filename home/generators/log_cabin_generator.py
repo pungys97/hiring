@@ -14,9 +14,3 @@ class Generator(BaseGenerator):
                    Field(name='height', value=self.height, field_type=Field.INPUT),
                    Field(name='solution', field_type=Field.SOLUTION),
                ), self.seed
-
-    def get_fields(self) -> dict:
-        return {
-            'width': self.width,
-            'height': self.height
-        }

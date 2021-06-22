@@ -137,3 +137,9 @@ dmypy.json
 .pyre/
 
 /hiring/db.sqlite3
+/hiring/home/fixtures/all.json
+/home/migrations/0002_auto_20210617_0929.py
+/home/migrations/0003_alter_challenge_slug.py
+/home/migrations/0004_alter_challenge_image_src_path.py
+/home/migrations/0005_auto_20210617_1024.py
+/home/migrations/0006_auto_20210622_1624.py

@@ -26,3 +26,8 @@ def verify_signature(signed_signature: str):
     except BadSignature:
         original_timestamp, seed = None, None
     return original_timestamp, seed
+
+
+def create_if_file_not_exists(filename):
+    with open(filename, 'a+') as _:
+        return

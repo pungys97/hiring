@@ -66,7 +66,7 @@ $('#challengeForm').submit(function(e){
                 .append("</button>");
             $("#success > .alert-danger").append(
                 $("<strong>").text(
-                    "Ooops, that's not correct. Please try again!"
+                    "Ooops, that's not correct or time is up. Please try again!"
                 )
             );
             $("#success > .alert-danger").append("</div>");

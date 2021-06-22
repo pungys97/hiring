@@ -1,24 +1,23 @@
 import importlib
 from collections import defaultdict
-from datetime import datetime
-from pprint import pprint
-
+from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.core.signing import Signer
-from django.db.models import Max
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.db.models import Max, Min, F
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.views import View
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.generic import TemplateView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import FormView
 from random_username.generate import generate_username
 
-from hiring.settings import LEAD_RECIPIENTS
+from hiring.settings import LEAD_RECIPIENTS, GCP
 from .forms import ChallengeForm, ContactForm
 from .models import Challenge, ChallengeAttempt
 from .utils import get_logger, verify_signature
@@ -35,32 +34,45 @@ def get_username(request):
 
 
 def published_challenges():
-    return Challenge.objects.filter(is_published=True).order_by('created_date_time')
+    """
+    Returns all published challenges sorted from most recently created to least. Number of published challenges should
+    never be too high (more than 5/6) due to layout constraints.
+    :return: Queryset of challenges
+    """
+    return Challenge.objects.filter(is_published=True).order_by('-created_date_time')
 
 
 def compute_scores():
-    published_challenges_ = tuple(published_challenges().values_list('id', flat=True))
+    published_challenges_ids, published_challenges_score_fields = map(tuple, zip(*published_challenges().values_list('id', 'scoreboard_field')))
     published_challenges_attempts = ChallengeAttempt.objects.filter(challenge__is_published=True)
-    max_scores = published_challenges_attempts.values('challenge').annotate(max_score=Max('score'))
-    max_scores = {challenge['challenge']: challenge['max_score'] for challenge in max_scores}
-    scores = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
-        score=Max('score')
-    ).order_by('attempted_by')  # TODO: show time instead of score
-    data = defaultdict(lambda: [None for _ in range(
-        len(published_challenges_))])  # create initial list of length no. of published challenges == column count
-    for score in scores:
+    max_scores = get_max_scores_for_each_challenge(published_challenges_attempts)
+    if GCP:  # works on Postgres only
+        scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').order_by('-score').distinct('attempted_by', 'challenge')
+    else:
+        scores_by_user = published_challenges_attempts.values('attempted_by', 'challenge').annotate(
+            score=Max('score'), duration=Min('duration')
+        ).order_by('attempted_by')
+    data = defaultdict(lambda: [None for _ in range(len(published_challenges_ids))])  # create initial list of length no.
+    # of published challenges == column count, so that the table row has always correct number of columns
+    for score in scores_by_user:
+        column_idx = published_challenges_ids.index(score['challenge'])  # used to assign proper column in scoreboard table
+        show_norm_score = published_challenges_score_fields[column_idx] == 's'  # see details in models.py
         score['score_norm'] = score['score'] / max_scores[score['challenge']]
+        score['score_detail_to_show'] = score['score_norm'] if show_norm_score else score['duration']
         user = score.pop('attempted_by')
-        column_idx = published_challenges_.index(
-            score['challenge'])  # used to assign proper column in scoreboard table
         data[user][column_idx] = score
-    sorted_data = sorted(
+    sorted_scores = sorted(
         data.items(),
         key=lambda x: sum(y['score_norm'] if y else 0 for y in x[1]),
         reverse=True
     )
-    cache.set(CACHE_SCORES_KEY, sorted_data, )
-    return sorted_data
+    return sorted_scores
+
+
+def get_max_scores_for_each_challenge(published_challenges_attempts):
+    max_scores = published_challenges_attempts.values('challenge').annotate(max_score=Max('score'))
+    max_scores = {challenge['challenge']: challenge['max_score'] for challenge in max_scores}
+    return max_scores
 
 
 class HomeView(TemplateView):
@@ -72,7 +84,12 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['top_5'] = cache.get(CACHE_SCORES_KEY, compute_scores())[:5]  # get top 5
+        scores = cache.get(CACHE_SCORES_KEY)
+        if not scores:
+            logger.debug("Top 5 not cached.")
+            scores = compute_scores()
+            cache.set(CACHE_SCORES_KEY, scores)
+        context['top_5'] = scores[:5]
         context['challenges'] = published_challenges()
         context['username'] = self.username
         return context
@@ -91,7 +108,7 @@ class ScoreboardView(TemplateView):
         return get_username(self.request)
 
     def get_context_data(self, **kwargs):
-        scores = cache.get(CACHE_SCORES_KEY, compute_scores())
+        scores = compute_scores()
         paginator = Paginator(scores, 20)
         page_number = int(self.request.GET.get('page', '1'))
         page_obj = paginator.get_page(page_number)
@@ -117,7 +134,7 @@ class ChallengeDisplayView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        generator_module = importlib.import_module(self.object.generator_script_path, package='home')
+        generator_module = importlib.import_module(self.object.generator_script_import_statement, package='home')
         fields, seed = generator_module.Generator().generate_challenge_fields()
         context['form'] = ChallengeForm(
             fields=fields,
@@ -143,7 +160,7 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
 
     def save_solution_attempt(self, data):
         username = get_username(self.request)
-        solver_module = importlib.import_module(self.object.solver_script_path, package='home')
+        solver_module = importlib.import_module(self.object.solver_script_import_statement, package='home')
         timestamp, seed = verify_signature(data.get('signature', ''))
         if timestamp:
             duration = timezone.now() - datetime.fromisoformat(timestamp)
@@ -152,12 +169,14 @@ class ChallengeAnswerView(SingleObjectMixin, FormView):
         logger.debug(f"started - {timestamp}, finished - {timezone.now()}")
         logger.debug(f"Solution took {duration}.")
         solver = solver_module.Solver(seed, **data)
-        completed = solver.solve(data['solution'])
+        completed = solver.check_solution(**data)
+        if duration > timedelta(minutes=self.object.time_limit_in_minutes):
+            return False  # not completed
         attempt = ChallengeAttempt(
             challenge=self.object,
             attempted_by=username,
             attempted_date_time=timestamp,
-            score=solver.get_score(duration),
+            score=solver.get_score(duration, ),
             duration=duration,
             completed=completed,
         )
